@@ -10,6 +10,13 @@
 > are **paper sections**: your deployed research paper must carry both, and they're here so
 > you never rebuild them from memory at ship time.
 
+> **📌 Portfolio reminder (set FL Week 10):** once this capstone is graded and approved,
+> add it to the portfolio as **Case Study 2**, right after the security case study.
+> Reuse the Week 2 three-beat shape (problem → what I did → what came of it) and use the
+> Claude Project — it already knows the voice, stack, and identity kit, so this should be a
+> short conversation, not a rebuild. Don't skip this step just because the deadline pressure
+> is gone once the capstone is submitted.
+
 ## 0. Abstract
 
 Five sentences, written last, placed first: question → data → method → headline result →
