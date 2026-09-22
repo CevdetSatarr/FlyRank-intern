@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Which content is worth reviewing first? A signal-audited refresh-priority model on 79M rows of production search data</title>
+<meta name="description" content="A Random Forest refresh-priority model for content review, validated under a client-grouped split and checked against a full signal audit — including one finding that contradicts the usual 'stale content' assumption.">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"></noscript>
+<style>
+  :root {
+    --bg: #FAF9F6;
+    --bg-raised: #F2F0EA;
+    --text-primary: #1B1D1F;
+    --text-secondary: #4A4D52;
+    --text-muted: #7A7D82;
+    --border: #DDD9D0;
+    --border-strong: #C7C2B6;
+    --accent: #B4722E;
+    --accent-dim: #8A5A24;
+    --sans: 'Inter', sans-serif;
+    --mono: 'IBM Plex Mono', 'Courier New', monospace;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text-primary);
+    font-family: var(--sans);
+    font-size: 17px;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 760px; margin: 0 auto; padding: 0 24px; }
+  a { color: var(--accent); text-decoration: underline; text-decoration-color: var(--border-strong); text-underline-offset: 3px; }
+  a:hover { text-decoration-color: var(--accent); }
+
+  header.hero { padding: 64px 0 32px 0; border-bottom: 1px solid var(--border); }
+  .eyebrow { font-family: var(--mono); font-size: 12.5px; letter-spacing: 0.04em; color: var(--accent-dim); margin-bottom: 14px; text-transform: uppercase; }
+  h1 { font-size: 30px; line-height: 1.3; font-weight: 700; margin: 0 0 18px 0; }
+  .byline { font-size: 14.5px; color: var(--text-muted); margin-bottom: 4px; }
+
+  .abstract-box {
+    background: var(--bg-raised);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 22px 24px;
+    margin: 28px 0 0 0;
+  }
+  .abstract-box p { margin: 0; font-size: 16px; color: var(--text-secondary); }
+
+  section { padding: 44px 0; border-bottom: 1px solid var(--border); }
+  section:last-of-type { border-bottom: none; }
+  h2 { font-size: 22px; font-weight: 700; margin: 0 0 16px 0; }
+  h3 { font-size: 17px; font-weight: 600; margin: 24px 0 8px 0; }
+  p { color: var(--text-secondary); margin: 0 0 16px 0; }
+  strong { color: var(--text-primary); }
+
+  table { width: 100%; border-collapse: collapse; margin: 16px 0 8px 0; font-size: 14.5px; }
+  th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--border); }
+  th { font-family: var(--mono); font-size: 12px; color: var(--text-muted); font-weight: 400; text-transform: none; }
+  td { color: var(--text-secondary); }
+  td:first-child, th:first-child { color: var(--text-primary); font-weight: 500; }
+  .verdict { font-family: var(--mono); font-size: 12px; padding: 2px 7px; border-radius: 3px; }
+  .v-confirmed { background: #E8F1EC; color: #3F7A5C; }
+  .v-mixed { background: #F7F1E3; color: #8A6432; }
+  .v-false { background: #F7E9E8; color: #B0413E; }
+
+  figure { margin: 24px 0; }
+  figure img { width: 100%; border: 1px solid var(--border); border-radius: 4px; }
+  figcaption { font-size: 13.5px; color: var(--text-muted); margin-top: 8px; font-style: italic; }
+
+  .callout {
+    border-left: 3px solid var(--accent);
+    padding: 2px 0 2px 18px;
+    margin: 20px 0;
+  }
+  .callout p { color: var(--text-primary); font-size: 15.5px; }
+
+  .no-go { background: var(--bg-raised); border: 1px solid var(--border); border-radius: 6px; padding: 16px 20px; margin: 16px 0; }
+  .no-go p { margin: 0; font-size: 14.5px; }
+
+  code { font-family: var(--mono); font-size: 0.88em; background: var(--bg-raised); padding: 1px 5px; border-radius: 3px; }
+
+  footer.credit { padding: 40px 0 60px 0; text-align: center; }
+  footer.credit p { font-size: 13.5px; color: var(--text-muted); }
+
+  @media (max-width: 640px) {
+    body { font-size: 16px; }
+    h1 { font-size: 25px; }
+    header.hero { padding: 44px 0 28px 0; }
+    section { padding: 32px 0; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <div class="eyebrow">FlyRank ML Internship &middot; Research Paper &middot; Lane 2</div>
+  <h1>Which content is worth reviewing first? A signal-audited refresh-priority model on real production search data</h1>
+  <div class="byline">Cevdet Satar &middot; September 2026</div>
+
+  <div class="abstract-box">
+    <p><strong>Abstract.</strong> Content teams routinely triage pages for refresh using rules of thumb &mdash; "old content is stale content" chief among them &mdash; but rarely check whether those rules hold against real performance data. Using one month of production search data (49,396 content items, 35 clients) from the FlyRank ML Internship warehouse, I trained a Random Forest to rank pages by likelihood of within-month click decline, validated under a client-grouped split against a majority-class baseline and Logistic Regression, and separately audited every candidate signal against the actual data. The model modestly beat the baseline on accuracy (61.5% vs. 57.5%) but tied Logistic Regression on Precision@20 (0.90 for both) &mdash; the metric that matches how a ranked review queue actually gets used &mdash; while the signal audit found that <strong>content age, the assumption behind the industry-standard "stale content" refresh flag, showed no relationship to decline this month</strong>, whereas search-ranking position did, cleanly. The output is a ranked, reason-coded shortlist for human review, not an automated action, scoped explicitly to what this evidence supports and no further.</p>
+  </div>
+</header>
+
+<section id="introduction">
+  <h2>1. Introduction</h2>
+  <p>A content team with fifty pages flagged for review and one hour to spend needs an order, not a list. Most refresh workflows supply that order using a handful of assumed-obvious signals &mdash; content age near the top of the list, on the theory that older pages are more likely stale. That assumption is rarely checked against the team's own data before it's acted on.</p>
+  <p>This paper asks two questions at once: <strong>which content is actually worth reviewing first</strong>, using a model validated the way a skeptical reader would want it validated, and <strong>do the signals commonly assumed to matter actually hold up</strong> when checked directly. The second question turned out to matter as much as the first.</p>
+</section>
+
+<section id="data">
+  <h2>2. Data</h2>
+  <p><strong>Release:</strong> FlyRank ML Internship warehouse, distributed via Hugging Face (<code>FlyRank/internship-warehouse</code>). <strong>Tables:</strong> <code>fact_content_daily_performance</code> (the <code>month=2026-03</code> partition), left-joined to <code>dim_content</code> for static metadata (creation date, keyword-level search-volume estimate).</p>
+  <p><strong>Window:</strong> the full mid-panel month of March 2026. The panel's sealed final month is deliberately excluded from every stage of this work &mdash; it is the natural outcome window for any past-to-future label, and using it during development would mean testing against the future it's meant to validate against.</p>
+  <p><strong>Scope after filtering:</strong> 49,396 content items across 35 clients, restricted to items with at least 100 search impressions that month &mdash; a real-demand floor set from information available at scoring time.</p>
+  <p><strong>Excluded, and why:</strong> raw click counts are never used as a model feature &mdash; they are the direct ingredient of the label itself (Section 3). All client and content identifiers are pseudonymous hashes; no client name, URL, or raw search query appears anywhere in this work or its source notebooks.</p>
+</section>
+
+<section id="methodology">
+  <h2>3. Methodology</h2>
+  <h3>Label</h3>
+  <p><code>is_declining</code> is a within-month proxy: clicks in the second half of March compared against the first half. It is directional and can be noisy for low-traffic items &mdash; it is not a confirmed business outcome, and this paper does not treat it as one.</p>
+  <h3>Features</h3>
+  <p>Three honest, leakage-checked features: <code>gsc_impressions</code> (month total), <code>gsc_avg_position</code> (month average rank), and <code>content_age_days</code> (static, from creation date). All three are knowable at scoring time and independent of how the label itself is constructed.</p>
+  <div class="callout"><p>Raw clicks were deliberately tested as a feature and rejected: including them pushed model accuracy toward a near-perfect, meaningless number &mdash; the textbook symptom of a label-derived feature, not a real predictive signal.</p></div>
+  <h3>Baseline</h3>
+  <p>A majority-class rate and a Logistic Regression on the same honest feature set, both evaluated on the identical split as the final model &mdash; never quoted from a different run or a different partition.</p>
+  <h3>Validation design</h3>
+  <p><code>GroupShuffleSplit</code> keyed on client, not a random row split: rows from the same client never appear in both train and test, which prevents the model from learning a client's identity instead of a pattern that generalizes to a client it has never seen.</p>
+  <h3>Leakage checks</h3>
+  <p>Three separate checks: (1) the deliberate label-derived-feature test above; (2) a full audit of every candidate signal against the label with the bucket size printed at every step (Section 4); (3) a direct re-test of the validation design itself &mdash; re-running the same model under a naive random split versus the grouped split, to check whether the grouped split's numbers could be trusted at face value (Section 6).</p>
+</section>
+
+<section id="results">
+  <h2>4. Results</h2>
+  <table>
+    <tr><th>Model</th><th>Accuracy</th><th>Precision</th><th>Recall</th><th>Precision@20</th></tr>
+    <tr><td>Base rate (majority class)</td><td>0.575</td><td>0.575</td><td>1.000</td><td>0.575</td></tr>
+    <tr><td>Logistic Regression (honest features)</td><td>0.575</td><td>0.576</td><td>0.996</td><td>0.900</td></tr>
+    <tr><td>Random Forest (honest features)</td><td>0.615</td><td>0.608</td><td>0.934</td><td>0.900</td></tr>
+  </table>
+  <p style="font-size:13.5px;color:var(--text-muted);">Test set: 1,213 rows, grouped by client (35 clients total, 0 client overlap between train and test).</p>
+  <p>Random Forest edges out the baseline on plain accuracy (61.5% vs. 57.5%, roughly a 7-point lift) but is exactly tied with the simpler Logistic Regression on Precision@20 &mdash; the metric that actually matches how this ranking gets used, since a reviewer works top-down through a queue rather than acting on every row. On the metric that matters most for the real use case, the added model complexity did not produce a measured advantage in this run.</p>
+</section>
+
+<section id="signal-audit">
+  <h2>5. Does the conventional wisdom hold? A signal audit</h2>
+  <p>Before trusting any of the features above, each was checked directly against the data &mdash; not assumed. One of these checks produced the paper's central finding.</p>
+  <table>
+    <tr><th>Signal</th><th>Test</th><th>Verdict</th></tr>
+    <tr><td>Position tier</td><td>vs. decline rate</td><td><span class="verdict v-confirmed">CONFIRMED</span></td></tr>
+    <tr><td>Impressions (log-bucketed)</td><td>vs. decline rate</td><td><span class="verdict v-mixed">MIXED</span></td></tr>
+    <tr><td>External keyword-volume estimate</td><td>vs. real observed impressions</td><td><span class="verdict v-false">FALSE</span></td></tr>
+    <tr><td>Content age (staleness)</td><td>vs. decline rate</td><td><span class="verdict v-false">FALSE</span></td></tr>
+  </table>
+
+  <figure>
+    <img src="figures/position_tier_decline.png" alt="Bar chart: decline rate rises cleanly from 0.479 at top-3 positions to 0.805 at deep positions">
+    <figcaption>Position tier is the one signal that held up cleanly this month: decline rate rises monotonically from 47.9% at top-3 positions to 80.5% at the deepest tier, with a large sample size (n=200&ndash;26,713) at every step.</figcaption>
+  </figure>
+
+  <div class="callout">
+    <p><strong>Content age &mdash; the assumption behind the industry-standard "stale content" refresh flag &mdash; showed no relationship to decline this month.</strong> Decline rate was flat at roughly 54% across every age bucket (under 90 days, 90&ndash;365 days, 365&ndash;730 days), each backed by a large sample (5,946&ndash;27,440 rows). This is not a data error; it directly complicates any recommendation logic that leans on age as a reason to prioritize a page, and is treated as a first-class limitation of this work, not a footnote (Section 7).</p>
+  </div>
+
+  <p>The external keyword-volume estimate fared no better: its correlation with this month's real observed impressions was effectively zero (Spearman r = &minus;0.014). It should not be trusted as a stand-in for actual demand.</p>
+</section>
+
+<section id="validation-robustness">
+  <h2>6. Is the validation design itself trustworthy?</h2>
+  <p>The grouped-by-client split (Section 3) is the more rigorous choice on principle &mdash; but with only 35 clients, does it actually behave more reliably in practice? The same Random Forest was re-run under a naive random row split for direct comparison.</p>
+  <table>
+    <tr><th>Split</th><th>Test rows</th><th>Test decline rate</th><th>Accuracy</th><th>Recall</th></tr>
+    <tr><td>Random row split</td><td>12,349</td><td>0.542</td><td>0.597</td><td>0.772</td></tr>
+    <tr><td>Grouped by client</td><td>1,213</td><td>0.575</td><td>0.613</td><td>0.944</td></tr>
+  </table>
+  <p>The grouped split scored <em>higher</em> on both accuracy and recall &mdash; the opposite of the usual pattern where a naive split inflates scores through memorization. Read honestly, this is not evidence that grouping improved the model: with only 35 clients, a 1,213-row grouped test set is small enough that which specific client(s) land in it can plausibly dominate the result on its own. The safer conclusion is that a single grouped split, at this client count, is too unstable to trust the direction of any such gap &mdash; a finding carried into the Limitations below rather than smoothed over.</p>
+</section>
+
+<section id="recommendations">
+  <h2>7. Ranked recommendations</h2>
+  <p>Every scored item falls into one of four archetypes, built from the three validated signals:</p>
+  <figure>
+    <img src="figures/archetype_distribution.png" alt="Horizontal bar chart of archetype counts: Quiet Decline 24,853, Too Young to Call 15,397, Stable Performer 9,005, Declining Veteran 141">
+    <figcaption>Archetype distribution across all 49,396 scored items. The highest-priority group (Declining Veteran) is a small fraction of the portfolio &mdash; plausibly reflecting a fast-growing content base where little content has aged past the archetype's threshold yet, though this has not been independently confirmed.</figcaption>
+  </figure>
+  <table>
+    <tr><th>Archetype</th><th>Action</th><th>Reason code</th><th>n</th></tr>
+    <tr><td>Declining Veteran</td><td><code>refresh_priority</code></td><td><code>STALE_HIGH_VALUE_DECLINE</code></td><td>141</td></tr>
+    <tr><td>Quiet Decline</td><td><code>monitor_only</code></td><td><code>LOW_VALUE_DECLINE</code></td><td>24,853</td></tr>
+    <tr><td>Stable Performer</td><td><code>protect_no_action</code></td><td><code>STABLE_HIGH_VALUE</code></td><td>9,005</td></tr>
+    <tr><td>Too Young to Call</td><td><code>wait_and_monitor</code></td><td><code>INSUFFICIENT_SIGNAL_AGE</code></td><td>15,397</td></tr>
+  </table>
+  <div class="no-go">
+    <p><strong>Never automated:</strong> publishing or editing content from this queue; pruning or de-indexing based on a <code>monitor_only</code> label; overriding legal, compliance, or brand review. This is a decision-support shortlist for a human editor &mdash; not a work order, and not a system with permission to act on its own.</p>
+  </div>
+</section>
+
+<section id="limitations">
+  <h2>8. Limitations &amp; honest framing</h2>
+  <p><strong>The central tension in this work:</strong> the highest-priority archetype above (<em>Declining Veteran</em>) uses content age &ge;365 days as one of its three defining criteria &mdash; but Section 5 found no relationship between age and decline this month. The position and volume components of that archetype's logic are supported by the audit; the age component is not. A reader using these recommendations should weight that archetype accordingly rather than trusting the label at face value.</p>
+  <ul>
+    <li>Single month, single mid-panel partition &mdash; not validated across seasons or a longer window.</li>
+    <li>Only 35 clients; the grouped-split test set is small (1,213 rows), and Section 6 shows its results can shift with which clients happen to land in it. Precision@20 = 0.90 should be read as directional, not a guaranteed rate on a new client base.</li>
+    <li><code>is_declining</code> is a within-month proxy, not a confirmed outcome &mdash; a page can score as declining from one noisy week.</li>
+    <li>No causal design anywhere in this pipeline. Nothing here supports "refreshing page X will cause outcome Y" &mdash; only "X looks worth reviewing first, and here is why."</li>
+    <li>The external keyword-volume estimate should not be used as a demand forecast; it showed no measurable relationship to real observed traffic this month.</li>
+  </ul>
+</section>
+
+<section id="reproducibility">
+  <h2>9. Reproducibility</h2>
+  <p>Full pipeline, notebook-by-notebook, in the public repository:</p>
+  <ul>
+    <li><a href="https://github.com/CevdetSatarr/FlyRank-intern/blob/main/work/notebooks/w03_data_contract.ipynb">Data contract</a> &mdash; grain, verification queries, availability checks</li>
+    <li><a href="https://github.com/CevdetSatarr/FlyRank-intern/blob/main/work/notebooks/w04_baseline_score.ipynb">Baseline score</a> &amp; <a href="https://github.com/CevdetSatarr/FlyRank-intern/blob/main/work/notebooks/w04_signal_audit.ipynb">signal audit</a></li>
+    <li><a href="https://github.com/CevdetSatarr/FlyRank-intern/blob/main/work/notebooks/w05_model.ipynb">Model training</a> &mdash; Random Forest vs. baseline, grouped split</li>
+    <li><a href="https://github.com/CevdetSatarr/FlyRank-intern/blob/main/work/notebooks/w06_validation_audit.ipynb">Validation audit</a> &mdash; split-design robustness check</li>
+    <li><a href="https://github.com/CevdetSatarr/FlyRank-intern/blob/main/work/notebooks/w07_action_playbook.ipynb">Action playbook</a> &mdash; archetypes, ranked queue, exports</li>
+    <li><a href="https://github.com/CevdetSatarr/FlyRank-intern/blob/main/work/notebooks/capstone.ipynb">Capstone notebook</a> &mdash; mirrors this paper section by section</li>
+  </ul>
+  <p>Random seeds fixed at 42 throughout (<code>train_test_split</code>, <code>GroupShuffleSplit</code>, <code>RandomForestClassifier</code>) for exact re-runnability against the same data partition.</p>
+</section>
+
+<footer class="credit">
+  <p>Built on the FlyRank ML Internship dataset &mdash; <a href="https://flyrank.ai">flyrank.ai</a></p>
+</footer>
+
+</div>
+</body>
+</html>
