@@ -135,7 +135,7 @@
   <h3>Validation design</h3>
   <p><code>GroupShuffleSplit</code> keyed on client, not a random row split: rows from the same client never appear in both train and test, which prevents the model from learning a client's identity instead of a pattern that generalizes to a client it has never seen.</p>
   <h3>Leakage checks</h3>
-  <p>Three separate checks: (1) the deliberate label-derived-feature test above; (2) a full audit of every candidate signal against the label with the bucket size printed at every step (Section 4); (3) a direct re-test of the validation design itself &mdash; re-running the same model under a naive random split versus the grouped split, to check whether the grouped split's numbers could be trusted at face value (Section 6).</p>
+  <p>Three separate checks: (1) the deliberate label-derived-feature test above; (2) a full audit of every candidate signal against the label with the bucket size printed at every step (Section 5); (3) a direct re-test of the validation design itself &mdash; re-running the same model under a naive random split versus the grouped split, to check whether the grouped split's numbers could be trusted at face value (Section 6).</p>
 </section>
 
 <section id="results">
@@ -167,7 +167,7 @@
   </figure>
 
   <div class="callout">
-    <p><strong>Content age &mdash; the assumption behind the industry-standard "stale content" refresh flag &mdash; showed no relationship to decline this month.</strong> Decline rate was flat at roughly 54% across every age bucket (under 90 days, 90&ndash;365 days, 365&ndash;730 days), each backed by a large sample (5,946&ndash;27,440 rows). This is not a data error; it directly complicates any recommendation logic that leans on age as a reason to prioritize a page, and is treated as a first-class limitation of this work, not a footnote (Section 7).</p>
+    <p><strong>Content age &mdash; the assumption behind the industry-standard "stale content" refresh flag &mdash; showed no relationship to decline this month.</strong> Decline rate was flat at roughly 54% across every age bucket (under 90 days, 90&ndash;365 days, 365&ndash;730 days), each backed by a large sample (5,946&ndash;27,440 rows). This is not a data error; it directly complicates any recommendation logic that leans on age as a reason to prioritize a page, and is treated as a first-class limitation of this work, not a footnote (Section 8).</p>
   </div>
 
   <p>The external keyword-volume estimate fared no better: its correlation with this month's real observed impressions was effectively zero (Spearman r = &minus;0.014). It should not be trusted as a stand-in for actual demand.</p>
