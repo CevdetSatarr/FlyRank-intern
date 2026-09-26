@@ -146,6 +146,10 @@
     <tr><td>Logistic Regression (honest features)</td><td>0.575</td><td>0.576</td><td>0.996</td><td>0.900</td></tr>
     <tr><td>Random Forest (honest features)</td><td>0.615</td><td>0.608</td><td>0.934</td><td>0.900</td></tr>
   </table>
+  <figure>
+    <img src="figures/model_vs_baseline.png" alt="Grouped bar chart: accuracy is 0.575 for the base rate and Logistic Regression and 0.615 for Random Forest; Precision@20 is 0.575 for the base rate and 0.900 for both models">
+    <figcaption>Both models clear the base rate on Precision@20 (0.90 vs. 0.575), but they tie each other there; Random Forest's only edge is plain accuracy.</figcaption>
+  </figure>
   <p style="font-size:13.5px;color:var(--text-muted);">Test set: 1,213 rows, grouped by client (35 clients total, 0 client overlap between train and test).</p>
   <p>Random Forest edges out the baseline on plain accuracy (61.5% vs. 57.5%, roughly a 7-point lift) but is exactly tied with the simpler Logistic Regression on Precision@20 &mdash; the metric that actually matches how this ranking gets used, since a reviewer works top-down through a queue rather than acting on every row. On the metric that matters most for the real use case, the added model complexity did not produce a measured advantage in this run.</p>
 </section>
@@ -228,6 +232,12 @@
     <li><a href="https://github.com/CevdetSatarr/FlyRank-intern/blob/main/work/notebooks/capstone.ipynb">Capstone notebook</a> &mdash; mirrors this paper section by section</li>
   </ul>
   <p>Random seeds fixed at 42 throughout (<code>train_test_split</code>, <code>GroupShuffleSplit</code>, <code>RandomForestClassifier</code>) for exact re-runnability against the same data partition.</p>
+</section>
+
+<section id="acknowledgments">
+  <h2>10. Acknowledgments &amp; data credit</h2>
+  <p>Built on the FlyRank ML Internship dataset &mdash; <a href="https://flyrank.ai">flyrank.ai</a>. All data comes from the FlyRank ML Internship warehouse, a pseudonymized release of real production search data made available to interns for research. The framing in the introduction draws on FlyRank&rsquo;s public report <em>The State of AI-Driven SEO in Numbers</em> (March 2026).</p>
+  <p>Thanks to the FlyRank internship team for the warehouse, the lane structure, and the review process that shaped this work. Drafting and code were assisted by Claude (Anthropic); every number in this paper traces back to an executed notebook in the repository linked above.</p>
 </section>
 
 <footer class="credit">
